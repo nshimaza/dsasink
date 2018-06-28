@@ -30,16 +30,16 @@ import org.slf4j.LoggerFactory
 /**
   * Created by nshimaza on 2016/09/19.
   */
-object DsaSink {
+object SinkDSLink {
 
   private val log = LoggerFactory.getLogger(getClass)
   private val finishMarker = new SynchronousQueue[Unit]()
 
   def main(args: Array[String]): Unit = {
-    log.info("Starting DsaSink")
+    log.info("Starting Sink")
 
     val provider = DSLinkFactory.generate(args.drop(5),
-      DsaSinkDSLinkHandler(
+      SinkDSLinkHandler(
         linkName = args(0),
         firstGen = args(1).toInt,
         lastGen = args(2).toInt,
@@ -51,34 +51,34 @@ object DsaSink {
     provider.start()
     finishMarker.take()
     Thread.sleep(10000)
-    println("exit DsaSink")
+    println("exit Sink")
     System.exit(0)
   }
 }
 
-case class DsaSinkDSLinkHandler(linkName: String,
-                                firstGen: Int,
-                                lastGen: Int,
-                                numNode: Int,
-                                outDirName: String,
-                                markFinished: () => Unit
-                               ) extends DSLinkHandler {
+case class SinkDSLinkHandler(linkName: String,
+                             firstGen: Int,
+                             lastGen: Int,
+                             numNode: Int,
+                             outDirName: String,
+                             markFinished: () => Unit
+                            ) extends DSLinkHandler {
 
   private val log = LoggerFactory.getLogger(getClass)
   private val outFile = new BufferedWriter(new FileWriter(outDirName + s"$linkName$firstGen"))
   override def isRequester = true
 
-  override def onRequesterInitialized(link: DSLink) = {
-    log.info("Requester initialized")
+  override def onRequesterInitialized(link: DSLink): Unit = {
+    log.info("Sink initialized")
   }
 
-  override def onRequesterConnected(link: DSLink) = {
-    log.info("Requester connected")
+  override def onRequesterConnected(link: DSLink): Unit = {
+    log.info("Sink connected")
 
     for (i <- firstGen to lastGen;
          j <- 1 to numNode) {
       link.getRequester.subscribe(new SubData(s"/downstream/$linkName$i/c$j", 1), new Handler[SubscriptionValue] {
-        def handle(event: SubscriptionValue) = {
+        def handle(event: SubscriptionValue): Unit = {
           val currTime = System.currentTimeMillis()
           val value = event.getValue
           val count = value.getNumber.intValue
