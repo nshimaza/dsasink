@@ -20,7 +20,7 @@ $ java -jar target/scala-2.12/dslink-scala-sink-assembly-0.1.0-SNAPSHOT.jar Gene
 Start dslink-scala-generator in another terminal.
 
 ```shell-session
-$ java -jar target/scala-2.12/dslink-scala-generator-assembly-0.1.0-SNAPSHOT.jar 1 2 60 --broker https://localhost:8443/conn
+$ java -jar target/scala-2.12/dslink-scala-generator-assembly-0.1.0-SNAPSHOT.jar 1 2 60 --broker https://localhost:8443/conn --name Generator1
 ```
 
 ## Permission note
